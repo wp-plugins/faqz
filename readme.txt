@@ -2,9 +2,9 @@
 Contributors: husobj
 Donate link: http://www.benhuson.co.uk/donate/
 Tags: faq, faqs, questions, answers, knowledgebase
-Requires at least: 3.2
-Tested up to: 3.4.2
-Stable tag: 0.1
+Requires at least: 3.5
+Tested up to: 4.1
+Stable tag: 0.2
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ This is just a first release. More to come...
 2. FAQ search widget
 
 == Changelog ==
+
+= 0.2 =
+* Code tidy/restructure and documentation.
 
 = 0.1 =
 * First release.

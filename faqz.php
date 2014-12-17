@@ -4,7 +4,7 @@
 Plugin Name: FAQz
 Plugin URI: https://github.com/benhuson/FAQz
 Description: Simple management of Frequently Asked Questions (FAQ).
-Version: 0.1
+Version: 0.2
 Author: Ben Huson
 Author URI: https://github.com/benhuson/
 License: GPL2
@@ -29,23 +29,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class FAQz {
 
-    protected $plugin_dir;
-    protected $plugin_subdir;
-    protected $plugin_url;
-    
+	protected $plugin_dir;
+	protected $plugin_subdir;
+	protected $plugin_url;
+
 	/**
 	 * Constructor
 	 */
-    function __construct() {
-    	
-    	// Paths
-    	$this->plugin_dir = plugin_dir_path( __FILE__ );
-    	$this->plugin_subdir = '/' . str_replace( basename( __FILE__ ), '', plugin_basename( __FILE__ ) );
-    	$this->plugin_url = plugins_url( $this->plugin_subdir );
-		
+	public function __construct() {
+
+		// Paths
+		$this->plugin_dir = plugin_dir_path( __FILE__ );
+		$this->plugin_subdir = '/' . str_replace( basename( __FILE__ ), '', plugin_basename( __FILE__ ) );
+		$this->plugin_url = plugins_url( $this->plugin_subdir );
+
 		// Includes
 		include_once( $this->plugin_dir . 'includes/widgets.php' );
-		
+
 		// Setup
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
@@ -53,29 +53,30 @@ class FAQz {
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
 		add_filter( 'cmspo_post_types', array( $this, 'cmspo_post_types' ) );
 		add_shortcode( 'faqz', array( $this, 'shortcode_faqz' ) );
+
 	}
-	
+
 	/**
 	 * Register Post Types
 	 */
 	function register_post_types() {
-		$labels = array(
-			'name'               => _x( 'FAQz', 'Post type general name', 'faq' ),
-			'singular_name'      => _x( 'FAQ', 'Post type singular name', 'faq' ),
-			'add_new'            => _x( 'Add New', 'book', 'faq' ),
-			'add_new_item'       => __( 'Add New FAQ', 'faq' ),
-			'edit_item'          => __( 'Edit FAQ', 'faq' ),
-			'new_item'           => __( 'New FAQ', 'faq' ),
-			'all_items'          => __( 'All FAQs', 'faq' ),
-			'view_item'          => __( 'View FAQ', 'faq' ),
-			'search_items'       => __( 'Search FAQs', 'faq' ),
-			'not_found'          => __( 'No FAQs found', 'faq' ),
-			'not_found_in_trash' => __( 'No FAQs found in Trash', 'faq' ), 
-			'parent_item_colon'  => '',
-			'menu_name'          => __( 'FAQz', 'faq' )
-		);
+
 		$args = array(
-			'labels'             => $labels,
+			'labels'             => array(
+				'name'               => _x( 'FAQz', 'Post type general name', 'faq' ),
+				'singular_name'      => _x( 'FAQ', 'Post type singular name', 'faq' ),
+				'add_new'            => _x( 'Add New', 'book', 'faq' ),
+				'add_new_item'       => __( 'Add New FAQ', 'faq' ),
+				'edit_item'          => __( 'Edit FAQ', 'faq' ),
+				'new_item'           => __( 'New FAQ', 'faq' ),
+				'all_items'          => __( 'All FAQs', 'faq' ),
+				'view_item'          => __( 'View FAQ', 'faq' ),
+				'search_items'       => __( 'Search FAQs', 'faq' ),
+				'not_found'          => __( 'No FAQs found', 'faq' ),
+				'not_found_in_trash' => __( 'No FAQs found in Trash', 'faq' ), 
+				'parent_item_colon'  => '',
+				'menu_name'          => __( 'FAQz', 'faq' )
+			),
 			'public'             => true,
 			'publicly_queryable' => true,
 			'show_ui'            => true, 
@@ -89,16 +90,21 @@ class FAQz {
 			'menu_icon'          => $this->plugin_url . '/images/icon.png',
 			'supports'           => array( 'title', 'editor', 'author', 'excerpt' )
 		);
-		$args = apply_filters( 'faqz_register_post_type_args', $args );
-		register_post_type( 'faqz', $args );
+
+		register_post_type( 'faqz', apply_filters( 'faqz_register_post_type_args', $args ) );
+
 	}
 
 	/**
 	 * Post Updated Messages
+	 *
+	 * @param   array  $messages  Messages.
+	 * @return  array             Messages.
 	 */
-	function post_updated_messages( $messages ) {
+	public function post_updated_messages( $messages ) {
+
 		global $post, $post_ID;
-		
+
 		$messages['faqz'] = array(
 			0 => '', // Unused. Messages start at index 1.
 			1 => sprintf( __( 'FAQ updated. <a href="%s">View FAQ</a>', 'faqz' ), esc_url( get_permalink( $post_ID ) ) ),
@@ -115,71 +121,100 @@ class FAQz {
 			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink( $post_ID ) ) ),
 			10 => sprintf( __( 'FAQ draft updated. <a target="_blank" href="%s">Preview FAQ</a>', 'faqz' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) ) ),
 		);
-		
+
 		return $messages;
+
 	}
-	
+
 	/**
 	 * Support for CMS Page Order plugin
 	 * http://wordpress.org/extend/plugins/cms-page-order/
+	 *
+	 * @param   array  $post_types  Exisiting post type support.
+	 * @return  array               Updated post type support.
 	 */
 	function cmspo_post_types( $post_types ) {
+
 		$post_types[] = 'faqz';
 		return $post_types;
+
 	}
-	
+
 	/**
 	 * Template Redirect
 	 */
-	function template_redirect() {
+	public function template_redirect() {
+
 		if ( is_search() && ( is_post_type_archive( 'faqz' ) || ( is_archive() && 'faqz' == get_post_type() ) ) ) {
+
 			$search_template = locate_template( 'search-faqz.php' );
+
 			if ( '' != $search_template ) {
 				require( $search_template );
 				exit;
 			}
+
 		}
+
 	}
-	
+
 	/**
 	 * Get Search Form
+	 *
+	 * @param   boolean  $echo  Echo the form?
+	 * @return  string          Form HTML.
 	 */
-	function get_search_form( $echo = true ) {
+	public function get_search_form( $echo = true ) {
+
 		do_action( 'faqz_get_search_form' );
-	
+
 		$search_form_template = locate_template( 'searchform-faqz.php' );
 		if ( '' != $search_form_template ) {
 			require( $search_form_template );
 			return;
 		}
-	
+
 		$form = '<form role="search" method="get" id="faqz-searchform" action="' . esc_url( get_post_type_archive_link( 'faqz' ) ) . '" >
 		<div><label class="screen-reader-text" for="faqz-s">' . __( 'Search for:', 'faqz' ) . '</label>
 		<input type="text" value="' . get_search_query() . '" name="s" id="faqz-s" />
 		<input type="submit" id="faqz-searchsubmit" value="'. esc_attr__( 'Search', 'faqz' ) .'" />
 		</div>
 		</form>';
-	
-		if ( $echo )
+
+		if ( $echo ) {
 			echo apply_filters( 'faqz_get_search_form', $form );
-		else
+		} else {
 			return apply_filters( 'faqz_get_search_form', $form );
+		}
+
 	}
-	
+
 	/**
 	 * Shortcode: [faq /]
+	 *
+	 * @param   array   $atts     Shortcode attributes.
+	 * @param   string  $content  Default content.
+	 * @return  string            Content.
 	 */
-	function shortcode_faqz( $atts, $content = '' ) {
+	public function shortcode_faqz( $atts, $content = '' ) {
+
 		$atts = wp_parse_args( $atts, array(
 			'faqz_context' => 'shortcode'
 		) );
+
 		return $content . $this->faqz_list( $atts );
+
 	}
-	
+
 	/**
 	 * FAQz List
+	 *
+	 * @param   array   $args  Display args.
+	 * @return  string         List HTML.
 	 */
-	function faqz_list( $args = null ) {
+	public function faqz_list( $args = null ) {
+
+		// Args
 		$args = wp_parse_args( $args, array(
 			'posts_per_page'   => -1,
 			'orderby'          => 'menu_order',
@@ -191,54 +226,81 @@ class FAQz {
 			'faqz_after_item'  => '</div>'
 		) );
 		$args['post_type'] = 'faqz';
-		
+
 		$faqs = '';
 		$faqs_query = new WP_Query( $args );
+
+		// Output FAQz
 		if ( $faqs_query->have_posts() ) {
 			while ( $faqs_query->have_posts() ) {
 				$faqs_query->the_post();
+
 				$faq = '<h3 class="faqz-question"><a href="' . get_permalink() . '">' . get_the_title() . '</a></h3>';
 				$faq .= '<div class="faqz-answer">' . get_the_content() . '</div>';
 				$faqs .= $args['faqz_before_item'] . apply_filters( 'faqz_loop', $faq, $args ) . $args['faqz_after_item'];
+
 			}
 			wp_reset_postdata();
 		}
+
 		if ( ! empty( $faqs ) ) {
 			$faqs = $args['faqz_before'] . $faqs . $args['faqz_after'];
 		}
+
 		return $faqs;
+
 	}
-	
+
 	/**
 	 * Load Text Domain Language Support
 	 */
-	function load_textdomain() {
+	public function load_textdomain() {
+
 		load_plugin_textdomain( 'faqz', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
 	}
 	
 	/**
 	 * Register Activation
 	 * Perform upgrades etc.
 	 */
-	function register_activation() {
+	public function register_activation() {
+
 		$this->register_post_types();
 		flush_rewrite_rules();
+
 	}
-	
+
 }
 
 global $faqz;
 $faqz = new FAQz();
 register_activation_hook( __FILE__, array( $faqz, 'register_activation' ) );
 
+/**
+ * FAQz List
+ *
+ * @param   array   $args  Display args.
+ * @return  string         List HTML.
+ */
 function faqz_list( $args = null ) {
+
 	global $faqz;
+
 	return $faqz->faqz_list( $args );
+
 }
 
+/**
+ * Get Search Form
+ *
+ * @param   boolean  $echo  Echo the form?
+ * @return  string          Form HTML.
+ */
 function faqz_get_search_form( $echo = true ) {
-	global $faqz;
-	return $faqz->get_search_form( $echo );
-}
 
-?>
+	global $faqz;
+
+	return $faqz->get_search_form( $echo );
+
+}
