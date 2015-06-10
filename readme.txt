@@ -4,7 +4,7 @@ Donate link: http://www.benhuson.co.uk/donate/
 Tags: faq, faqs, questions, answers, knowledgebase
 Requires at least: 3.5
 Tested up to: 4.1
-Stable tag: 0.2
+Stable tag: 0.3
 License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,11 @@ This is just a first release. More to come...
 2. FAQ search widget
 
 == Changelog ==
+
+= 0.3 =
+* Make FAQz post type public by default.
+* Register `faqz_category` taxonomy.
+* Set rewrite slug `with_front` to false.
 
 = 0.2 =
 * Code tidy/restructure and documentation.

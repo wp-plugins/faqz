@@ -4,7 +4,7 @@
 Plugin Name: FAQz
 Plugin URI: https://github.com/benhuson/FAQz
 Description: Simple management of Frequently Asked Questions (FAQ).
-Version: 0.2
+Version: 0.3
 Author: Ben Huson
 Author URI: https://github.com/benhuson/
 License: GPL2
@@ -48,6 +48,7 @@ class FAQz {
 
 		// Setup
 		add_action( 'init', array( $this, 'register_post_types' ) );
+		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'template_redirect', array( $this, 'template_redirect' ) );
 		add_filter( 'post_updated_messages', array( $this, 'post_updated_messages' ) );
@@ -82,16 +83,53 @@ class FAQz {
 			'show_ui'            => true, 
 			'show_in_menu'       => true, 
 			'query_var'          => true,
-			'rewrite'            => array( 'slug' => _x( 'faqz', 'Single URL slug', 'faqz' ) ),
+			'rewrite'            => array(
+				'slug'       => _x( 'faqz', 'Single URL slug', 'faqz' ),
+				'with_front' => false
+			),
 			'capability_type'    => 'post',
 			'has_archive'        => true,
 			'hierarchical'       => false,
 			'menu_position'      => null,
-			'menu_icon'          => $this->plugin_url . '/images/icon.png',
+			'menu_icon'          => 'dashicons-format-chat',
 			'supports'           => array( 'title', 'editor', 'author', 'excerpt' )
 		);
 
 		register_post_type( 'faqz', apply_filters( 'faqz_register_post_type_args', $args ) );
+
+	}
+
+	/**
+	 * Register Taxonomies
+	 */
+	function register_taxonomies() {
+
+		$args = array(
+			'hierarchical'      => true,
+			'labels'            => array(
+				'name'              => _x( 'Categories', 'taxonomy general name' ),
+				'singular_name'     => _x( 'Category', 'taxonomy singular name' ),
+				'search_items'      => __( 'Search Categories' ),
+				'all_items'         => __( 'All Categories' ),
+				'parent_item'       => __( 'Parent Category' ),
+				'parent_item_colon' => __( 'Parent Category:' ),
+				'edit_item'         => __( 'Edit Category' ),
+				'update_item'       => __( 'Update Category' ),
+				'add_new_item'      => __( 'Add New Category' ),
+				'new_item_name'     => __( 'New Category Name' ),
+				'menu_name'         => __( 'Category' ),
+			),
+			'public'            => true,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'query_var'         => true,
+			'rewrite'           => array(
+				'slug'       => 'faqz-category',
+				'with_front' => false
+			),
+		);
+
+		register_taxonomy( 'faqz_category', array( 'faqz' ), apply_filters( 'faqz_register_taxonomy_args', $args ) );
 
 	}
 
